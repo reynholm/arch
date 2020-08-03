@@ -1,0 +1,16 @@
+##
+## https://github.com/sidigi/bitrix-docker/blob/master/docker-compose.yml
+## https://github.com/spiritabsolute/bitrix-env-dev/blob/master/docker-compose.yml
+##
+
+
+version: '3'
+
+services:
+
+  nginx:
+    image: exponer/arch01
+    ports:
+      - 80:80
+    container_name: nginx
+    restart: always
