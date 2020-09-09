@@ -5,7 +5,7 @@ metadata:
   labels:
     app: nginx
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: nginx
@@ -15,9 +15,9 @@ spec:
         app: nginx
     spec:
       volumes:
-#        - name: www
-#          persistentVolumeClaim:
-#            claimName: www
+        - name: www
+          persistentVolumeClaim:
+            claimName: www
         - name: config
           configMap:
             name: nginx-config
@@ -30,8 +30,8 @@ spec:
           ports:
             - containerPort: 80
           volumeMounts:
-#            - name: www
-#              mountPath: /var/www/public_html
+            - name: www
+              mountPath: /var/www/public_html
             - name: config
               mountPath: /etc/nginx/conf.d
           livenessProbe:
