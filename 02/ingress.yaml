@@ -11,5 +11,5 @@ spec:
         paths:
           - path: /bitapp/bruhanov/(.*)
             backend:
-              serviceName: nginx-service
+              serviceName: nginx
               servicePort: 8000
