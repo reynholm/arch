@@ -2,28 +2,52 @@
 
 namespace App\Controller;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Exception\BaseAppException;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class UserController extends BaseController
 {
-	public function get(Request $request, Response $response, $args)
+	/* @var \App\User $userService */
+	private $userService;
+
+	public function __construct(ContainerInterface $container)
 	{
-		$response->getBody()->write('user');
+		parent::__construct($container);
+		$this->userService = new \App\User($this->container->get('db'));
+	}
+
+	public function get(ServerRequestInterface $request, ResponseInterface $response, $args)
+	{
+		if (!isset($args['userId']) || !$args['userId'])
+		{
+			return $this->error($request, $response, $args);
+		}
+
+		try
+		{
+			$user = $this->userService->get((int) $args['userId']);
+		}
+		catch (BaseAppException $e)
+		{
+			return $this->error($request, $response, $args);
+		}
+
 		return $response;
 	}
 
-	public function post(Request $request, Response $response, $args)
+	public function post(ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
 		return $response;
 	}
 
-	public function put(Request $request, Response $response, $args)
+	public function put(ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
 		return $response;
 	}
 
-	public function delete(Request $request, Response $response, $args)
+	public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
 		return $response;
 	}
