@@ -57,7 +57,7 @@ class Db
 		try
 		{
 			$state = $this->getConnect()->prepare($sql);
-			$res = $state->execute($values);
+			$state->execute($values);
 		}
 		catch (\PDOException $e)
 		{
@@ -68,8 +68,18 @@ class Db
 			throw $e;
 		}
 
-		return $res;
+		return $state;
 	}
+
+	/**
+	 * @return string
+	 * @throws Exception\DbConfigException
+	 */
+	public function getLastInsertId(): int
+	{
+		return (int) $this->getConnect()->lastInsertId();
+	}
+
 
 	/**
 	 * @return \PDO|null

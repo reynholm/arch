@@ -1,9 +1,37 @@
 <?php
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage tasks
+ * @copyright 2001-2021 Bitrix
+ */
+
 namespace App;
+
+
+use App\Exception\DbException;
+use App\Exception\UserNotFoundException;
+use App\Exception\UserSetException;
+use App\Exception\UserValidateException;
 
 class User
 {
 	private $db;
+
+	public $id;
+	public $username 	= '';
+	public $lastName 	= '';
+	public $firstName 	= '';
+	public $email 		= '';
+	public $phone 		= '';
+
+	/**
+	 * @return string
+	 */
+	public static function getTableName(): string
+	{
+		return 'user';
+	}
 
 	/**
 	 * User constructor.
@@ -15,38 +43,181 @@ class User
 	}
 
 	/**
-	 * @param int $id
-	 * @return UserModel
+	 * @param array $data
+	 * @return $this
 	 */
-	public function get(int $id): UserModel
+	public function fill(array $data): self
 	{
+		$props = $this->getProps();
 
+		foreach ($props as $prop)
+		{
+			if (array_key_exists($prop->name, $data))
+			{
+				$this->{$prop->name} = $data[$prop->name];
+			}
+		}
+
+		return $this;
 	}
 
 	/**
-	 * @param UserModel $model
-	 * @return UserModel
+	 * @param int $id
+	 * @return $this
+	 * @throws DbException
+	 * @throws Exception\DbConfigException
+	 * @throws UserNotFoundException
 	 */
-	public function save(UserModel $model): UserModel
+	public function load(int $id): self
 	{
-		$model->validate();
-
-		if ($model->id)
+		$sql = "SELECT * FROM `". self::getTableName() ."` WHERE id = :id";
+		$res = $this->db->query($sql, [':id' => $id]);
+		if (!$res->rowCount())
 		{
-			// update
+			throw new UserNotFoundException();
+		}
+
+		$user = $res->fetchObject();
+
+		$this->id 			= $user->id;
+		$this->username 	= $user->username;
+		$this->firstName 	= $user->firstName;
+		$this->lastName 	= $user->lastName;
+		$this->email 		= $user->email;
+		$this->phone 		= $user->phone;
+
+		return $this;
+	}
+
+	/**
+	 * @param bool $validate
+	 * @return $this
+	 * @throws DbException
+	 * @throws Exception\DbConfigException
+	 * @throws UserValidateException
+	 */
+	public function save(bool $validate = true): self
+	{
+		if ($validate)
+		{
+			$this->validate();
+		}
+
+		$values = [
+			':username' 	=> $this->username,
+			':firstName' 	=> $this->firstName,
+			':lastName' 	=> $this->lastName,
+			':email' 		=> $this->email,
+			':phone' 		=> $this->phone,
+		];
+
+		if (!$this->id)
+		{
+			$sql = "
+				INSERT INTO `". self::getTableName() ."`
+				(`username`, `firstName`, `lastName`, `email`, `phone`)
+				VALUES
+				(:username, :firstName, :lastName, :email, :phone)
+			";
 		}
 		else
 		{
-			// add
+			$sql = "
+				UPDATE `". self::getTableName() ."`
+				SET
+					`username` 		= :username,
+					`firstName` 	= :firstName,
+					`lastName` 		= :lastName,
+					`email` 		= :email,
+					`phone` 		= :phone
+				WHERE `id` = :id
+			";
+
+			$values[':id'] = $this->id;
 		}
+
+		$this->db->query($sql, $values);
+		$id = $this->db->getLastInsertId();
+		if (!$id)
+		{
+			throw new DbException();
+		}
+
+		$this->id = $id;
+
+		return $this;
+	}
+
+	/**
+	 * @throws Exception\DbConfigException
+	 * @throws Exception\DbException
+	 * @throws UserSetException
+	 */
+	public function delete()
+	{
+		if (!$this->id)
+		{
+			throw new UserSetException();
+		}
+
+		$sql = "DELETE FROM `". self::getTableName() ."` WHERE id = :id";
+		$this->db->query($sql, [':id' => $this->id]);
 	}
 
 	/**
 	 * @param int $id
-	 * @return bool
+	 * @return $this
 	 */
-	public function delete(int $id): bool
+	public function setId(int $id): self
 	{
+		$this->id = $id;
+		return $this;
+	}
 
+	/**
+	 * @return string
+	 */
+	public function toJson(): string
+	{
+		$props = $this->getProps();
+
+		$data = [];
+		foreach ($props as $prop)
+		{
+			$data[$prop->name] = $this->{$prop->name};
+		}
+
+		$data = json_encode($data);
+
+		if ($data === false)
+		{
+			throw new UserSetException();
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @return bool
+	 * @throws UserValidateException
+	 *
+	 * Stub. Implementation required.
+	 */
+	private function validate(): bool
+	{
+		if (1 === 0)
+		{
+			throw new UserValidateException();
+		}
+		return true;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getProps(): array
+	{
+		$reflect = new \ReflectionClass(self::class);
+		return $reflect->getProperties(\ReflectionProperty::IS_PUBLIC);
 	}
 }

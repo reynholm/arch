@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Container\ContainerInterface;
@@ -8,6 +9,9 @@ use Psr\Container\ContainerInterface;
 abstract class BaseController
 {
 	protected $container;
+
+	protected $request;
+	protected $response;
 
 	/**
 	 * BaseController constructor.
@@ -30,22 +34,30 @@ abstract class BaseController
 
 		if (!method_exists($this, $method))
 		{
-			return $this->error($request, $response, $args);
+			return $this->message(StatusCodeInterface::STATUS_BAD_REQUEST);
 		}
 
-		return $this->$method($request, $response, $args);
+		$this->request = $request;
+		$this->response = $response;
+
+		return $this->$method($args);
 	}
 
 	/**
-	 * @param ServerRequestInterface $request
-	 * @param ResponseInterface $response
-	 * @param $args
+	 * @param int $code
+	 * @param string $message
 	 * @return ResponseInterface
 	 */
-	public function error(ServerRequestInterface $request, ResponseInterface $response, $args): ResponseInterface
+	protected function message(int $code = StatusCodeInterface::STATUS_OK, string $message = ''): ResponseInterface
 	{
-		$response->withStatus(404);
-		$response->getBody()->write('Error 404');
-		return $response;
+		$this->response->withStatus($code);
+
+		$data = [
+			'code' => ($code === 200) ? 0 : $code,
+			'message' => $message
+		];
+
+		$this->response->getBody()->write(json_encode($data));
+		return $this->response;
 	}
 }

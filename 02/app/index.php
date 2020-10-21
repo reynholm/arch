@@ -20,7 +20,14 @@ $app = AppFactory::create();
 /* Routes */
 $app->any('/', App\Controller\HomeController::class);
 $app->any('/health', App\Controller\HealthController::class);
-$app->any('/user/[{userId}]', App\Controller\UserController::class);
+$app->any('/user[/{userId}]', App\Controller\UserController::class);
 
 /* ARRRGH! */
-$app->run();
+try
+{
+	$app->run();
+}
+catch (\Slim\Exception\HttpSpecializedException $e)
+{
+	die('OOPS');
+}

@@ -2,7 +2,7 @@
 
 $config = [];
 
-$config['db']['dsn'] = '';
+$config['db']['dsn'] = 'mysql:dbname=homework;host=mysql';
 $config['db']['username'] = 'bitrix';
 $config['db']['password'] = '112112';
 

@@ -3,52 +3,75 @@
 namespace App\Controller;
 
 use App\Exception\BaseAppException;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use App\Exception\UserValidateException;
+use Fig\Http\Message\StatusCodeInterface;
+use App\User;
 
 class UserController extends BaseController
 {
-	/* @var \App\User $userService */
-	private $userService;
-
-	public function __construct(ContainerInterface $container)
-	{
-		parent::__construct($container);
-		$this->userService = new \App\User($this->container->get('db'));
-	}
-
-	public function get(ServerRequestInterface $request, ResponseInterface $response, $args)
+	public function get(array $args)
 	{
 		if (!isset($args['userId']) || !$args['userId'])
 		{
-			return $this->error($request, $response, $args);
+			return $this->message(StatusCodeInterface::STATUS_BAD_REQUEST);
 		}
 
 		try
 		{
-			$user = $this->userService->get((int) $args['userId']);
+			$user = (new User($this->container->get('db')))->load((int) $args['userId']);
+			if (!$user)
+			{
+				return $this->message(StatusCodeInterface::STATUS_NOT_FOUND);
+			}
+
+			$this->response->getBody()->write($user->toJson());
 		}
 		catch (BaseAppException $e)
 		{
-			return $this->error($request, $response, $args);
+			return $this->message(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
-		return $response;
+		return $this->response;
 	}
 
-	public function post(ServerRequestInterface $request, ResponseInterface $response, $args)
+	public function post(array $args)
 	{
-		return $response;
+		$data = $this->request->getParsedBody();
+		if (empty($data))
+		{
+			return $this->message(StatusCodeInterface::STATUS_BAD_REQUEST);
+		}
+
+		try
+		{
+			$user = (new User($this->container->get('db')))->fill($data);
+			$user->save();
+			$this->response->getBody()->write($user->toJson());
+		}
+		catch (UserValidateException $e)
+		{
+			$this->message(StatusCodeInterface::STATUS_BAD_REQUEST);
+		}
+		catch(BaseAppException $e)
+		{
+			$this->message(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		return $this->response;
 	}
 
-	public function put(ServerRequestInterface $request, ResponseInterface $response, $args)
+	public function put(array $args)
 	{
-		return $response;
+		return $this->response;
 	}
 
-	public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
+	public function delete($args)
 	{
-		return $response;
+		if (!isset($args['userId']) || !$args['userId'])
+		{
+			return $this->message(StatusCodeInterface::STATUS_BAD_REQUEST);
+		}
+
+		return $this->response;
 	}
 }
