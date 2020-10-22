@@ -52,6 +52,10 @@ class User
 
 		foreach ($props as $prop)
 		{
+			if ($prop->name === 'id')
+			{
+				continue;
+			}
 			if (array_key_exists($prop->name, $data))
 			{
 				$this->{$prop->name} = $data[$prop->name];
@@ -137,7 +141,7 @@ class User
 		}
 
 		$this->db->query($sql, $values);
-		$id = $this->db->getLastInsertId();
+		$id = $this->id ?? $this->db->getLastInsertId();
 		if (!$id)
 		{
 			throw new DbException();
@@ -149,29 +153,14 @@ class User
 	}
 
 	/**
-	 * @throws Exception\DbConfigException
-	 * @throws Exception\DbException
-	 * @throws UserSetException
-	 */
-	public function delete()
-	{
-		if (!$this->id)
-		{
-			throw new UserSetException();
-		}
-
-		$sql = "DELETE FROM `". self::getTableName() ."` WHERE id = :id";
-		$this->db->query($sql, [':id' => $this->id]);
-	}
-
-	/**
 	 * @param int $id
-	 * @return $this
+	 * @throws DbException
+	 * @throws Exception\DbConfigException
 	 */
-	public function setId(int $id): self
+	public function delete(int $id)
 	{
-		$this->id = $id;
-		return $this;
+		$sql = "DELETE FROM `". self::getTableName() ."` WHERE id = :id";
+		$this->db->query($sql, [':id' => $id]);
 	}
 
 	/**
