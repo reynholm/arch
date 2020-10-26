@@ -5,12 +5,32 @@ metadata:
 data:
   config : |
     server {
-        listen 80 default_server;
+        listen 80;
 
         server_name test.lan;
+        root /var/www/public_html;
+        index index.php index.html;
 
-        location = /health/ {
-            add_header Content-Type text/plain;
-            return 200 '{"status": "OK"}';
+        client_max_body_size 1024m;
+
+        access_log /var/log/nginx/access-test.log;
+        error_log /var/log/nginx/error-test.log;
+
+        upstream php-upstream {
+            server php-service:9000;
+        }
+
+        location / {
+            try_files $uri /index.php$is_args$args;
+        }
+
+        location ~ \.php {
+            try_files $uri =404;
+            include fastcgi_params;
+            fastcgi_pass php-upstream;
+            fastcgi_index index.php;
+            fastcgi_send_timeout 21600;
+            fastcgi_read_timeout 21600;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         }
     }

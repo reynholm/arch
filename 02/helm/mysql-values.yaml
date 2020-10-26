@@ -1,0 +1,21 @@
+fullnameOverride: mysql
+
+root:
+  password: '112112'
+
+db:
+  name: homework
+  user: bx
+  password: '112112'
+
+replication:
+  enabled: false
+
+master:
+  persistence:
+    size: 1Gi
+    mountPath: ../mysql-data
+
+service:
+  type: NodePort
+  port: 3306
