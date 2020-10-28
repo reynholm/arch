@@ -9,8 +9,8 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - image: exponer/arch02
-          name: job-init
+        - image: exponer/arch02:latest
+          name: "app-init-job"
           env:
             - name: DATABASE_DSN
               valueFrom:
@@ -27,8 +27,5 @@ spec:
                 secretKeyRef:
                   name: php-secret
                   key: DATABASE_PASSWORD
-          command:
-            - "php"
-            - "./migrations/01_init.php"
-
+          command: ["php", "/var/app/migrations/01_init.php"]
   backoffLimit: 1

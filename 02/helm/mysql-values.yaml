@@ -14,7 +14,7 @@ replication:
 master:
   persistence:
     size: 1Gi
-    mountPath: ../mysql-data
+    mountPath: /var/www/arch01/02/mysql-data
 
 service:
   type: NodePort

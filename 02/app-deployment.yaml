@@ -17,7 +17,7 @@ spec:
           persistentVolumeClaim:
             claimName: www
       containers:
-        - image: exponer/arch02
+        - image: exponer/arch02:latest
           name: app
           env:
             - name: DATABASE_DSN

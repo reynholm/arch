@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-v2
+      app: nginx
   template:
     metadata:
       labels:
-        app: app-v2
+        app: nginx
     spec:
       volumes:
         - name: www
@@ -19,6 +19,9 @@ spec:
         - name: nginx-config
           configMap:
             name: nginx-config
+            items:
+              - key: config
+                path: app.conf
       containers:
         - image: nginx:alpine
           name: nginx
@@ -31,13 +34,13 @@ spec:
               mountPath: /etc/nginx/conf.d
           livenessProbe:
             httpGet:
-              path: /health/
+              path: /health
               port: 80
             initialDelaySeconds: 3
             periodSeconds: 3
           readinessProbe:
             httpGet:
-              path: /health/
+              path: /health
               port: 80
             initialDelaySeconds: 3
             periodSeconds: 3

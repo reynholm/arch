@@ -2,14 +2,10 @@
 
 namespace App\Controller;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-
 class HomeController extends BaseController
 {
-	public function get(Request $request, Response $response, $args)
+	public function get($args)
 	{
-		$response->getBody()->write('home');
-		return $response;
+		return $this->message();
 	}
 }
