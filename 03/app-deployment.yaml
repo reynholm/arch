@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      volumes:
+        - name: www
+          persistentVolumeClaim:
+            claimName: www
+      containers:
+        - image: exponer/arch03:latest
+          name: app
+          env:
+            - name: DATABASE_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: php-config
+                  key: DATABASE_DSN
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: php-secret
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: php-secret
+                  key: DATABASE_PASSWORD
+          volumeMounts:
+            - name: www
+              mountPath: /var/www/public_html
+          lifecycle:
+            postStart:
+              exec:
+                command: [ "/bin/sh", "-c", "cp -r /var/app/. /var/www/public_html" ]

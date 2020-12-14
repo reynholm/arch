@@ -1,0 +1,18 @@
+fullnameOverride: mysql
+
+auth:
+  rootPassword: '112112'
+  database: homework
+  username: bx
+  password: '112112'
+
+primary:
+  service:
+    type: NodePort
+    port: 3306
+  persistence:
+    enabled: true
+    size: 1Gi
+
+volumePermissions:
+  enabled: true

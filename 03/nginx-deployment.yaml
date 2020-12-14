@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: www
+          persistentVolumeClaim:
+            claimName: www
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+            items:
+              - key: config
+                path: app.conf
+      containers:
+        - image: nginx:alpine
+          name: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: www
+              mountPath: /var/www/public_html
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3

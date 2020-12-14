@@ -1,0 +1,16 @@
+GET http://bit.homework/bitapp/bruhanov/user/1
+
+###
+
+POST http://bit.homework/bitapp/bruhanov/user
+Content-Type: application/x-www-form-urlencoded
+
+username=MaLooo&firstName=Mary&lastName=Loo&email=ml@example.com&phone=+1 555 9995555
+
+###
+
+PUT http://bit.homework/bitapp/bruhanov/user/1?email=jddd@example.com&phone=+1 666 5555555
+
+###
+
+DELETE http://bit.homework/bitapp/bruhanov/user/1

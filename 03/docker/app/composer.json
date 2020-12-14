@@ -1,0 +1,21 @@
+{
+  "name": "bruhanov/arch03",
+  "description": "Homework 3",
+  "require": {
+	"slim/slim": "4.5.0",
+	"slim/psr7": "1.2.0",
+	"ext-json": "*",
+	"ext-pdo": "*",
+	"ext-pdo_mysql": "*",
+	"php-di/php-di": "*",
+	"promphp/prometheus_client_php": "*"
+  },
+  "autoload": {
+	"psr-4": {
+	  "App\\": "src/"
+	}
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^5.1"
+  }
+}

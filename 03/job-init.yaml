@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "app-init"
+spec:
+  template:
+    metadata:
+      name: "app-init"
+    spec:
+      restartPolicy: Never
+      containers:
+        - image: exponer/arch03:latest
+          name: "app-init-job"
+          env:
+            - name: DATABASE_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: php-config
+                  key: DATABASE_DSN
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: php-secret
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: php-secret
+                  key: DATABASE_PASSWORD
+          command: ["php", "/var/app/migrations/01_init.php"]
+  backoffLimit: 1
