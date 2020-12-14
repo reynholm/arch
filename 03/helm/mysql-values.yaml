@@ -16,3 +16,10 @@ primary:
 
 volumePermissions:
   enabled: true
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: default
+    interval: 15s
