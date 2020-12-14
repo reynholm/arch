@@ -9,9 +9,9 @@
 И обновляем индексы  
 `helm repo update`  
 
-Устанавливаем mysql, prometheus и ingress  
-`helm install mysql bitnami/mysql -f ./helm/mysql-values.yaml`  
+Устанавливаем prometheus, mysql и ingress (ВНИМАНИЕ! порядок установки важен)  
 `helm install prom prometheus-community/kube-prometheus-stack -f ./helm/prometheus.yaml --atomic`  
+`helm install mysql bitnami/mysql -f ./helm/mysql-values.yaml`  
 `helm install nginx stable/nginx-ingress -f ./helm/nginx-ingress.yaml --atomic`  
 
 Ждем пока все поставится и запустится.  
