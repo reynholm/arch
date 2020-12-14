@@ -13,3 +13,14 @@ spec:
   selector:
     matchLabels:
       app: app-monitor
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+spec:
+  serviceMonitorSelector:
+    matchLabels:
+      prometheus: app-monitor
